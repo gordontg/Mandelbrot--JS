@@ -1,0 +1,77 @@
+<html>
+<!-- 
+
+	Simple HTML & JS based Mandelbrot generator shown in my blog post on everythingdev.com
+
+-->
+<head>
+<script type="text/javascript">
+
+	var rScale;
+	var iScale;	
+	var rOrigin;
+	var iOrigin;
+	
+	var ctx = null; // canvas context
+	
+	// init canvas
+	function init() {
+		c = document.getElementById("plot");		
+		rScale = c.width/2;
+		iScale = c.height/2;		
+		rOrigin = c.width - 0.5*rScale;
+		iOrigin = 0.5*c.height;		
+		
+		ctx = document.getElementById("plot").getContext("2d");		
+		ctx.fillStyle = "black";
+		ctx.fillRect(0, 0, c.width, c.height);
+		
+		plotMandelbrot();
+	}
+	
+	function plotPoint(real, imag, clr) {
+		ctx.fillStyle = clr;
+		r = rOrigin + real*rScale;
+		i = iOrigin + imag*iScale;
+		ctx.fillRect(r,i,1,1);
+	}
+
+	function solve(real0, i0,	real1, i1) {
+		realpart = (real0*real0) + (-1 * i0 * i0);
+		imagpart = (real0 * i0)*2;
+		
+		realpart += real1;  
+		imagpart += i1;
+		
+		return [realpart, imagpart];
+	}
+	
+	function plotMandelbrot() {
+		var its = 0;
+		var params;
+		var pointOutside = false;
+		for(var i = -1; i <= 1; i += 0.002) {		
+			for(var r = -2; r <= 0.5; r += 0.002) {
+				pointOutside = false;
+				params = [0,0];
+				its = 0;
+	
+				do {
+					params = solve(params[0], params[1], r, i);
+
+					pointOutside = Math.sqrt(params[0]*params[0]+params[1]*params[1]) > 2.0;
+					
+					its++;
+				} while(its < 50 && !pointOutside);
+				
+				plotPoint(r, i, pointOutside ? "black" : "white");
+			}
+		}
+	}
+	
+</script>
+</head>
+<body onload="init()">
+<canvas id="plot" tabindex="1" width="400" height="400" onload="init()"></canvas>
+</body>
+</html>
